@@ -319,8 +319,8 @@ const LeafletMap = () => {
     <div style={{ height: '100%', width: '100%', position: 'absolute', top: 0, left: 0 }}>
       <MapContainer center={[37.4979, 127.0271]} zoom={13} style={{ height: '100%', width: '100%' }}>
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
         />
         <Marker position={[37.4979, 127.0271]}>
           <Popup>강남역 인근 <br/> OAI 92점 (최적)</Popup>

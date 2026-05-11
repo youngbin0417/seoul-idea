@@ -221,9 +221,11 @@ body {
 
 /* Leaflet Customizations for Toss-Style */
 .leaflet-container {
-    background-color: #E5E8EB !important;
+  border-radius: 20px;
+  filter: saturate(0.5) contrast(1.05) brightness(1.02);
+  background: #F2F4F6 !important;
 }
 
-.leaflet-tile-pane {
-    filter: grayscale(100%) opacity(0.8);
+.leaflet-tile {
+  filter: grayscale(0.2);
 }
