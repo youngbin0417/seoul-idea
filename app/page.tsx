@@ -1,6 +1,13 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
+
+// Dynamically import Leaflet components to avoid SSR issues
+const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
+const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
+const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
+const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false });
 
 // --- Types ---
 type View = 'pitch' | 'home' | 'detail' | 'explore' | 'community' | 'my';
@@ -142,14 +149,50 @@ const ExploreView = () => (
   </div>
 );
 
+const LeafletMap = () => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    // Fix default marker icon
+    import('leaflet').then(L => {
+      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+      });
+    });
+  }, []);
+
+  if (!isMounted) return null;
+
+  return (
+    <div style={{ height: '100%', width: '100%', position: 'absolute', top: 0, left: 0 }}>
+      <MapContainer center={[37.4979, 127.0271]} zoom={13} style={{ height: '100%', width: '100%' }}>
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <Marker position={[37.4979, 127.0271]}>
+          <Popup>강남역 인근 <br/> OAI 92점 (최적)</Popup>
+        </Marker>
+        <Marker position={[37.5172, 127.0413]}>
+          <Popup>청담공원 <br/> OAI 88점 (좋음)</Popup>
+        </Marker>
+      </MapContainer>
+    </div>
+  );
+};
+
 const CommunityView = () => {
   const [tab, setTab] = useState<'map' | 'feed'>('map');
 
   return (
-    <div className="flex-1 flex flex-col bg-[#F2F4F6]" style={{ height: '100vh', paddingBottom: '72px' }}>
+    <div className="flex-1 flex flex-col bg-[#F2F4F6] overflow-hidden" style={{ position: 'relative' }}>
       
       {/* Top Header / Tab Switcher (Instagram style toggle) */}
-      <div className="bg-white px-4 py-2 flex justify-between items-center sticky top-0 z-20" style={{ borderBottom: '1px solid #f2f4f6' }}>
+      <div className="bg-white px-4 py-2 flex justify-between items-center sticky top-0 z-[1001]" style={{ borderBottom: '1px solid #f2f4f6' }}>
         <div className="flex gap-4" style={{ paddingLeft: '8px' }}>
           <div onClick={() => setTab('map')} style={{ fontSize: '18px', fontWeight: tab === 'map' ? 800 : 600, color: tab === 'map' ? '#191F28' : '#8B95A1', cursor: 'pointer', transition: 'color 0.2s' }}>지도보기</div>
           <div onClick={() => setTab('feed')} style={{ fontSize: '18px', fontWeight: tab === 'feed' ? 800 : 600, color: tab === 'feed' ? '#191F28' : '#8B95A1', cursor: 'pointer', transition: 'color 0.2s' }}>피드보기</div>
@@ -161,16 +204,10 @@ const CommunityView = () => {
 
       {tab === 'map' ? (
         // --- MAP VIEW (Instagram Map Style) ---
-        <main 
-          className="flex-1 relative bg-[#E5E8EB] overflow-hidden animate-fade-in"
-          style={{ 
-            backgroundImage: 'url("https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/OpenStreetMap_-_Map_of_London.png/800px-OpenStreetMap_-_Map_of_London.png")',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center'
-          }}
-        >
+        <main className="flex-1 relative bg-[#E5E8EB] overflow-hidden animate-fade-in">
+          <LeafletMap />
           {/* Map overlay to soften the image slightly */}
-          <div className="absolute inset-0 bg-white/30 pointer-events-none"></div>
+          <div className="absolute inset-0 bg-white/10 pointer-events-none" style={{ zIndex: 400 }}></div>
           {/* Floating Search/Filter Overlay */}
           <div className="absolute top-4 left-4 right-4 z-10 flex gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
              <div className="bg-white flex items-center gap-2 px-4 py-2 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex-shrink-0" style={{ fontWeight: 600, fontSize: '14px', cursor: 'pointer' }}>
@@ -206,7 +243,7 @@ const CommunityView = () => {
           </div>
 
           {/* Location / View List Button overlay at bottom center */}
-          <div className="absolute bottom-6 w-full flex justify-center z-10 pointer-events-none">
+          <div className="absolute bottom-24 w-full flex justify-center z-[1001] pointer-events-none">
              <div className="pointer-events-auto bg-[#191F28] text-white px-5 py-3 rounded-[100px] flex gap-2 items-center shadow-[0_8px_16px_rgba(0,0,0,0.2)]" style={{ fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}>
                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
                이 지역 게시물 보기
@@ -215,7 +252,7 @@ const CommunityView = () => {
         </main>
       ) : (
         // --- FEED VIEW (Instagram Main Feed Style) ---
-        <main className="flex-1 bg-white overflow-y-auto animate-fade-in pb-12" style={{ scrollbarWidth: 'none' }}>
+        <main className="flex-1 bg-white overflow-y-auto animate-fade-in pb-24" style={{ scrollbarWidth: 'none' }}>
           {/* Post 1 */}
           <div className="mb-4">
             {/* Post Header */}
