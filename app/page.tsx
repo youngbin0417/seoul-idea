@@ -411,7 +411,7 @@ const CommunityView = ({ initialTab = 'feed' }: { initialTab?: 'map' | 'feed' })
     <div className="flex-1 flex flex-col bg-[#F2F4F6] overflow-y-auto pb-24" style={{ position: 'relative' }}>
 
       {/* Top Tab Bar (Large, floating style) */}
-      <div className="pt-8 px-6 pb-4 flex justify-between items-center z-[1001] sticky top-0 bg-[#F2F4F6]">
+      <div className="pt-safe px-6 pb-4 flex justify-between items-center z-[1001] sticky top-0 bg-[#F2F4F6]" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 12px)' }}>
         <div className="flex bg-[#E5E8EB] p-1.5 rounded-[18px] gap-1 flex-1 shadow-inner mr-3">
           <div
             onClick={() => setTab('feed')}
@@ -1070,7 +1070,7 @@ export default function App() {
 
   return (
     <div className="app-container">
-      <div className="flex-1 flex flex-col overflow-hidden" style={{ paddingTop: '40px' }}>
+      <div className="flex-1 flex flex-col overflow-hidden">
         {view === 'pitch' && <PitchView onStart={() => setView('home')} />}
         {view === 'home' && (
           <HomeView onDetail={Object.assign(handleShowDetail, { onOpenMap: handleOpenMap })} />
