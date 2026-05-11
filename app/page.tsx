@@ -109,6 +109,7 @@ const FactorAnalysis = ({ label, value }: { label: string; value: number }) => (
 const PitchView = ({ onStart }: { onStart: () => void }) => (
   <div className="flex-1 flex flex-col items-center justify-center text-center p-6 animate-fade-in" style={{ background: 'var(--bg-color)' }}>
     <div className="flex-1 flex flex-col justify-center items-center">
+      <img src="/assets/logo_minimalist.png" alt="odee logo" style={{ width: '140px', height: '140px', marginBottom: '8px' }} />
       <div style={{ fontSize: '56px', fontWeight: 900, color: 'var(--primary-eco)', marginBottom: '16px', letterSpacing: '-2px' }}>odee</div>
       <h1 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '12px', wordBreak: 'keep-all', lineHeight: 1.3 }}>오디갈까?</h1>
       <p style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>나에게 가장 완벽한 장소 찾기</p>
@@ -120,10 +121,16 @@ const PitchView = ({ onStart }: { onStart: () => void }) => (
 const HomeView = ({ onDetail }: { onDetail: (name: string) => void }) => (
   <div className="flex-1 flex flex-col animate-slide-up">
     <header className="header">
-      <div className="flex items-center gap-2" style={{ fontWeight: 700 }}>
-        📍 서울시 강남구 ▼
+      <div className="flex items-center gap-2">
+        <img src="/assets/logo_minimalist.png" alt="logo" style={{ width: '28px', height: '28px' }} />
+        <span style={{ fontWeight: 800, fontSize: '18px', color: 'var(--primary-eco)' }}>odee</span>
       </div>
-      <div style={{ fontSize: '20px' }}>🔔</div>
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1" style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-secondary)' }}>
+          📍 강남구 ▼
+        </div>
+        <div style={{ fontSize: '20px' }}>🔔</div>
+      </div>
     </header>
     <main className="px-6 pb-24">
       <h2 className="section-title">오늘의 야외활동</h2>
@@ -353,7 +360,9 @@ const PostCard = ({
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#F2F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>👤</div>
+          <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'white', overflow: 'hidden', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }}>
+            <img src="/assets/logo_3d.png" alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
           <div>
             <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)' }}>{user}</div>
             <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', fontWeight: 500 }}>{time}</div>
@@ -766,7 +775,9 @@ const MyView = ({ onPreference, onEnvFilter }: { onPreference: () => void; onEnv
     <main className="px-6 pb-24 overflow-y-auto">
       {/* Profile Header */}
       <div className="flex items-center gap-4 py-6">
-        <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>👤</div>
+        <div style={{ width: '72px', height: '72px', borderRadius: '24px', background: 'white', overflow: 'hidden', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}>
+          <img src="/assets/logo_3d.png" alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        </div>
         <div>
           <div style={{ fontSize: '20px', fontWeight: 800 }}>에코러너 <span style={{ fontSize: '14px', color: 'var(--primary)', marginLeft: '4px' }}>Lv.4</span></div>
           <div style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '2px' }}>서울시 강남구 · 가입 124일째</div>
