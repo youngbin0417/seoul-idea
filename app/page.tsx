@@ -107,11 +107,11 @@ const FactorAnalysis = ({ label, value }: { label: string; value: number }) => (
 // --- Views ---
 
 const PitchView = ({ onStart }: { onStart: () => void }) => (
-  <div className="flex-1 flex flex-col items-center justify-center text-center p-6 animate-fade-in" style={{ background: '#FFFFFF' }}>
+  <div className="flex-1 flex flex-col items-center justify-center text-center p-6 animate-fade-in" style={{ background: 'var(--bg-color)' }}>
     <div className="flex-1 flex flex-col justify-center items-center">
-      <div style={{ fontSize: '48px', fontWeight: 800, color: '#00D082', marginBottom: '16px' }}>ECO</div>
-      <h1 style={{ fontSize: '28px', fontWeight: 800, marginBottom: '12px', wordBreak: 'keep-all', lineHeight: 1.3 }}>날씨가 아니라,<br />활동의 최적을 찾습니다.</h1>
-      <p style={{ color: '#4E5968' }}>Outdoor Activity Intelligence</p>
+      <div style={{ fontSize: '56px', fontWeight: 900, color: 'var(--primary-eco)', marginBottom: '16px', letterSpacing: '-2px' }}>odee</div>
+      <h1 style={{ fontSize: '32px', fontWeight: 800, marginBottom: '12px', wordBreak: 'keep-all', lineHeight: 1.3 }}>오디갈까?</h1>
+      <p style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>나에게 가장 완벽한 장소 찾기</p>
     </div>
     <button className="btn-primary" onClick={onStart}>지금 시작하기</button>
   </div>

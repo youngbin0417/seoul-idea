@@ -3,7 +3,7 @@ import "./globals.css";
 import "leaflet/dist/leaflet.css";
 
 export const metadata: Metadata = {
-  title: "ECO - 실시간 야외활동 지능",
+  title: "odee (오디) - 실시간 야외활동 지능",
   description: "날씨가 아니라, 활동의 최적을 찾습니다. Outdoor Activity Intelligence",
 };
 
