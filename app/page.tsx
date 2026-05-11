@@ -189,65 +189,70 @@ const CommunityView = () => {
   const [tab, setTab] = useState<'map' | 'feed'>('map');
 
   return (
-    <div className="flex-1 flex flex-col bg-[#F2F4F6] overflow-hidden" style={{ position: 'relative' }}>
+    <div className="flex-1 flex flex-col bg-[#F2F4F6] overflow-y-auto pb-24" style={{ position: 'relative' }}>
       
-      {/* Top Header / Tab Switcher (Instagram style toggle) */}
-      <div className="bg-white px-4 py-2 flex justify-between items-center sticky top-0 z-[1001]" style={{ borderBottom: '1px solid #f2f4f6' }}>
-        <div className="flex gap-4" style={{ paddingLeft: '8px' }}>
-          <div onClick={() => setTab('map')} style={{ fontSize: '18px', fontWeight: tab === 'map' ? 800 : 600, color: tab === 'map' ? '#191F28' : '#8B95A1', cursor: 'pointer', transition: 'color 0.2s' }}>지도보기</div>
-          <div onClick={() => setTab('feed')} style={{ fontSize: '18px', fontWeight: tab === 'feed' ? 800 : 600, color: tab === 'feed' ? '#191F28' : '#8B95A1', cursor: 'pointer', transition: 'color 0.2s' }}>피드보기</div>
+      {/* Top Tab Bar (Large, floating style) */}
+      <div className="pt-8 px-6 pb-4 flex justify-between items-center z-[1001] sticky top-0 bg-[#F2F4F6]">
+        <div className="flex bg-[#E5E8EB] p-1.5 rounded-[18px] gap-1 flex-1 shadow-inner mr-3">
+          <div 
+            onClick={() => setTab('map')} 
+            className="flex-1 flex justify-center items-center gap-2"
+            style={{ 
+              padding: '12px 0', 
+              borderRadius: '14px', 
+              background: tab === 'map' ? 'white' : 'transparent',
+              boxShadow: tab === 'map' ? '0 4px 12px rgba(0,0,0,0.06)' : 'none',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            <span style={{ fontSize: '16px', fontWeight: 800, color: tab === 'map' ? 'var(--text-primary)' : '#8B95A1' }}>지도 보기</span>
+          </div>
+          <div 
+            onClick={() => setTab('feed')} 
+            className="flex-1 flex justify-center items-center gap-2"
+            style={{ 
+              padding: '12px 0', 
+              borderRadius: '14px', 
+              background: tab === 'feed' ? 'white' : 'transparent',
+              boxShadow: tab === 'feed' ? '0 4px 12px rgba(0,0,0,0.06)' : 'none',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            <span style={{ fontSize: '16px', fontWeight: 800, color: tab === 'feed' ? 'var(--text-primary)' : '#8B95A1' }}>피드 보기</span>
+          </div>
         </div>
-        <div className="flex gap-4" style={{ color: '#191F28', cursor: 'pointer' }}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        <div style={{ width: '48px', height: '48px', background: 'white', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.06)', color: 'var(--text-primary)', cursor: 'pointer' }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
         </div>
       </div>
 
       {tab === 'map' ? (
-        // --- MAP VIEW (Instagram Map Style) ---
-        <main className="flex-1 relative bg-[#E5E8EB] overflow-hidden animate-fade-in">
-          <LeafletMap />
-          {/* Map overlay to soften the image slightly */}
-          <div className="absolute inset-0 bg-white/10 pointer-events-none" style={{ zIndex: 400 }}></div>
-          {/* Floating Search/Filter Overlay */}
-          <div className="absolute top-4 left-4 right-4 z-10 flex gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
-             <div className="bg-white flex items-center gap-2 px-4 py-2 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex-shrink-0" style={{ fontWeight: 600, fontSize: '14px', cursor: 'pointer' }}>
-               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-               현재 지역 검색
-             </div>
-             {['후기', '제보', '모임'].map(chip => (
-               <div key={chip} className="bg-white px-4 py-2 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex-shrink-0" style={{ fontWeight: 600, fontSize: '14px', color: '#4E5968', cursor: 'pointer' }}>{chip}</div>
-             ))}
-          </div>
-
-          {/* Instagram-style Map Pins (Square with image inside and pointer) */}
-          <div className="absolute top-[30%] left-[20%] animate-slide-up" style={{ animationDelay: '0.1s' }}>
-            <div style={{ width: '60px', height: '60px', background: 'white', padding: '4px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', position: 'relative' }}>
-              <div style={{ width: '100%', height: '100%', backgroundColor: '#F2F4F6', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🏃</div>
-              <div style={{ position: 'absolute', bottom: '-8px', left: '50%', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '8px solid white' }}></div>
-            </div>
+        // --- MAP VIEW (Instagram Location Style) ---
+        <main className="px-6 flex flex-col gap-6 animate-fade-in">
+          {/* MAP BOX */}
+          <div className="relative overflow-hidden bg-white" style={{ borderRadius: '28px', height: '520px', boxShadow: '0 12px 40px rgba(0,0,0,0.08)', border: '1px solid #eef0f2' }}>
+            <LeafletMap />
+            {/* Soft overlay */}
+            <div className="absolute inset-0 bg-white/5 pointer-events-none" style={{ zIndex: 400 }}></div>
           </div>
           
-          <div className="absolute top-[50%] right-[20%] animate-slide-up" style={{ animationDelay: '0.2s' }}>
-            <div style={{ width: '60px', height: '60px', background: 'white', padding: '4px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', position: 'relative' }}>
-              <div style={{ width: '100%', height: '100%', backgroundColor: '#F2F4F6', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>⛳</div>
-              <div style={{ position: 'absolute', bottom: '-8px', left: '50%', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '8px solid white' }}></div>
+          {/* Below Map Content */}
+          <div>
+            <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '12px' }}>지금 뜨는 주변 장소</h3>
+            <div className="flex gap-3 overflow-x-auto pb-4" style={{ scrollbarWidth: 'none' }}>
+               <div className="card" style={{ minWidth: '150px', padding: '20px', marginBottom: 0, border: '1px solid #eef0f2' }}>
+                 <div style={{ fontSize: '28px', marginBottom: '8px' }}>⛳</div>
+                 <div style={{ fontWeight: 800, fontSize: '16px' }}>청담공원 인근</div>
+                 <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>2.5km · 리뷰 124</div>
+               </div>
+               <div className="card" style={{ minWidth: '150px', padding: '20px', marginBottom: 0, border: '1px solid #eef0f2' }}>
+                 <div style={{ fontSize: '28px', marginBottom: '8px' }}>🏃</div>
+                 <div style={{ fontWeight: 800, fontSize: '16px' }}>남산 둘레길</div>
+                 <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>4.1km · 리뷰 89</div>
+               </div>
             </div>
-          </div>
-
-          <div className="absolute bottom-[20%] left-[40%] animate-slide-up" style={{ animationDelay: '0.3s' }}>
-             {/* Selected Pin Style */}
-             <div style={{ width: '70px', height: '70px', background: 'var(--primary)', padding: '4px', borderRadius: '8px', boxShadow: '0 4px 16px rgba(49,130,246,0.4)', position: 'relative', zIndex: 5 }}>
-              <div style={{ width: '100%', height: '100%', backgroundColor: '#fff', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>🏞️</div>
-              <div style={{ position: 'absolute', bottom: '-8px', left: '50%', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '8px solid var(--primary)' }}></div>
-            </div>
-          </div>
-
-          {/* Location / View List Button overlay at bottom center */}
-          <div className="absolute bottom-24 w-full flex justify-center z-[1001] pointer-events-none">
-             <div className="pointer-events-auto bg-[#191F28] text-white px-5 py-3 rounded-[100px] flex gap-2 items-center shadow-[0_8px_16px_rgba(0,0,0,0.2)]" style={{ fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}>
-               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-               이 지역 게시물 보기
-             </div>
           </div>
         </main>
       ) : (
@@ -532,12 +537,14 @@ export default function App() {
 
   return (
     <div className="app-container">
-      {view === 'pitch' && <PitchView onStart={() => setView('home')} />}
-      {view === 'home' && <HomeView onDetail={() => setView('detail')} />}
-      {view === 'explore' && <ExploreView />}
-      {view === 'community' && <CommunityView />}
-      {view === 'my' && <MyView />}
-      {view === 'detail' && <DetailView onBack={() => setView('home')} />}
+      <div className="flex-1 flex flex-col overflow-hidden" style={{ paddingTop: '40px' }}>
+        {view === 'pitch' && <PitchView onStart={() => setView('home')} />}
+        {view === 'home' && <HomeView onDetail={() => setView('detail')} />}
+        {view === 'explore' && <ExploreView />}
+        {view === 'community' && <CommunityView />}
+        {view === 'my' && <MyView />}
+        {view === 'detail' && <DetailView onBack={() => setView('home')} />}
+      </div>
 
       {view !== 'pitch' && (
         <nav className="bottom-nav">

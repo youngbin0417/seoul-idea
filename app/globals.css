@@ -218,3 +218,12 @@ body {
     border-top: 1px solid #F2F4F6;
     z-index: 1000;
 }
+
+/* Leaflet Customizations for Toss-Style */
+.leaflet-container {
+    background-color: #E5E8EB !important;
+}
+
+.leaflet-tile-pane {
+    filter: grayscale(100%) opacity(0.8);
+}
