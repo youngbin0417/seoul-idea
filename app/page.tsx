@@ -337,6 +337,69 @@ const LeafletMap = () => {
   );
 };
 
+const PostCard = ({ 
+  user, 
+  time, 
+  location, 
+  content, 
+  oaiScore, 
+  activity, 
+  imageEmoji, 
+  likes, 
+  comments 
+}: any) => {
+  return (
+    <div className="card" style={{ padding: '20px', marginBottom: '16px', border: '1px solid #f2f4f6', boxShadow: '0 4px 15px rgba(0,0,0,0.04)', background: 'white' }}>
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: '#F2F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px' }}>👤</div>
+          <div>
+            <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)' }}>{user}</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', fontWeight: 500 }}>{time}</div>
+          </div>
+        </div>
+        <div style={{ padding: '6px 12px', borderRadius: '10px', background: '#F2F4F6', display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)' }}>📍 {location}</span>
+          <div style={{ width: '1px', height: '10px', background: '#D1D6DB' }} />
+          <span style={{ fontSize: '12px', fontWeight: 800, color: oaiScore > 80 ? 'var(--oai-optimal)' : 'var(--primary)' }}>OAI {oaiScore}</span>
+        </div>
+      </div>
+
+      {/* Content area */}
+      <div className="mb-4">
+        <p style={{ fontSize: '14.5px', lineHeight: 1.6, color: 'var(--text-primary)', fontWeight: 500, wordBreak: 'keep-all' }}>
+          {content}
+        </p>
+      </div>
+
+      {/* Image box */}
+      <div style={{ width: '100%', aspectRatio: '1.8/1', background: 'linear-gradient(135deg, #f5f7fa 0%, #eef1f5 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '64px', position: 'relative', borderRadius: '16px', overflow: 'hidden' }}>
+         {imageEmoji}
+         <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(255,255,255,0.9)', padding: '6px 14px', borderRadius: '100px', fontSize: '12px', fontWeight: 800, color: 'var(--primary)', boxShadow: '0 4px 10px rgba(0,0,0,0.05)' }}>
+            #{activity}
+         </div>
+      </div>
+
+      {/* Bottom Actions */}
+      <div className="mt-4">
+        <div className="flex items-center" style={{ gap: '24px' }}>
+          <div className="flex items-center gap-1.5" style={{ cursor: 'pointer' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
+            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-tertiary)' }}>{likes}</span>
+          </div>
+          <div className="flex items-center gap-1.5" style={{ cursor: 'pointer' }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></svg>
+            <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-tertiary)' }}>{comments}</span>
+          </div>
+          <div style={{ flex: 1 }} />
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer' }}><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" /></svg>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const CommunityView = ({ initialTab = 'feed' }: { initialTab?: 'map' | 'feed' }) => {
   const [tab, setTab] = useState<'map' | 'feed'>(initialTab);
 
@@ -412,89 +475,43 @@ const CommunityView = ({ initialTab = 'feed' }: { initialTab?: 'map' | 'feed' })
           </div>
         </main>
       ) : (
-        // --- FEED VIEW (Instagram Main Feed Style) ---
-        <main className="flex-1 bg-white overflow-y-auto animate-fade-in pb-24" style={{ scrollbarWidth: 'none' }}>
-          {/* Post 1 */}
-          <div className="mb-4">
-            {/* Post Header */}
-            <div className="flex items-center justify-between px-4 py-3">
-              <div className="flex items-center gap-3">
-                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#F2F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>👤</div>
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    에코러너
-                    <span style={{ fontSize: '12px', color: '#8B95A1', fontWeight: 500 }}>• 2시간 전</span>
-                  </div>
-                  <div style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: 600 }}>📍 남산 둘레길 (러닝)</div>
-                </div>
-              </div>
-              <div style={{ fontWeight: 700, fontSize: '18px', color: '#8B95A1', cursor: 'pointer' }}>⋮</div>
-            </div>
+        // --- FEED VIEW (Custom Card Style) ---
+        <main className="flex-1 px-6 overflow-y-auto animate-fade-in pb-24" style={{ scrollbarWidth: 'none' }}>
+          <PostCard 
+            user="에코러너" 
+            time="2시간 전" 
+            location="남산 둘레길" 
+            oaiScore={92}
+            activity="러닝"
+            content="오늘 남산 러닝 코스 진짜 최고네요! 바람도 적당하고 OAI 점수 92점 찍길래 바로 나왔습니다 🏃‍♂️💨"
+            imageEmoji="🌳🏃"
+            likes={124}
+            comments={12}
+          />
+          
+          <PostCard 
+            user="골프초보" 
+            time="5시간 전" 
+            location="D골프장" 
+            oaiScore={78}
+            activity="골프"
+            content="바람이 좀 불지만 칠만합니다. 14번홀 주의하세요! 잔디 상태는 아주 좋아요. ⛳☀️"
+            imageEmoji="⛳☀️"
+            likes={58}
+            comments={4}
+          />
 
-            {/* Post Image */}
-            <div style={{ width: '100%', aspectRatio: '1/1', background: '#F2F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '64px' }}>
-              🌳🏃
-            </div>
-
-            {/* Post Actions */}
-            <div className="flex items-center justify-between px-4 py-3">
-              <div className="flex gap-4 text-[#191F28]">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer' }}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer' }}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></svg>
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer' }}><polygon points="3 11 22 2 13 21 11 13 3 11" /></svg>
-              </div>
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer' }}><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" /></svg>
-            </div>
-
-            {/* Likes & Caption */}
-            <div className="px-4">
-              <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '4px' }}>좋아요 124개</div>
-              <div style={{ fontSize: '14px', lineHeight: 1.5 }}>
-                <span style={{ fontWeight: 700, marginRight: '6px' }}>에코러너</span>
-                오늘 남산 러닝 코스 진짜 최고네요! 바람도 적당하고 OAI 점수 92점 찍길래 바로 나왔습니다 🏃‍♂️💨
-              </div>
-              <div style={{ fontSize: '13px', color: '#8B95A1', marginTop: '6px', cursor: 'pointer' }}>댓글 12개 모두 보기</div>
-            </div>
-          </div>
-
-          <div style={{ width: '100%', height: '1px', background: '#f2f4f6', margin: '16px 0' }} />
-
-          {/* Post 2 */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between px-4 py-3">
-              <div className="flex items-center gap-3">
-                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#F2F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>👤</div>
-                <div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    골프초보
-                    <span style={{ fontSize: '12px', color: '#8B95A1', fontWeight: 500 }}>• 5시간 전</span>
-                  </div>
-                  <div style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: 600 }}>📍 D골프장</div>
-                </div>
-              </div>
-              <div style={{ fontWeight: 700, fontSize: '18px', color: '#8B95A1', cursor: 'pointer' }}>⋮</div>
-            </div>
-
-            <div style={{ width: '100%', aspectRatio: '1/1', background: '#F2F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '64px' }}>
-              ⛳☀️
-            </div>
-
-            <div className="flex items-center justify-between px-4 py-3">
-              <div className="flex gap-4 text-[#191F28]">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer' }}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer' }}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></svg>
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer' }}><polygon points="3 11 22 2 13 21 11 13 3 11" /></svg>
-              </div>
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer' }}><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" /></svg>
-            </div>
-            <div className="px-4">
-              <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '4px' }}>좋아요 58개</div>
-              <div style={{ fontSize: '14px', lineHeight: 1.5 }}>
-                <span style={{ fontWeight: 700, marginRight: '6px' }}>골프초보</span>
-                바람이 좀 불지만 칠만합니다. 14번홀 주의하세요!
-              </div>
-            </div>
-          </div>
+          <PostCard 
+            user="댕댕이집사" 
+            time="8시간 전" 
+            location="청담공원" 
+            oaiScore={88}
+            activity="산책"
+            content="공원이 아주 한적하고 시원해요. 강아지랑 산책하기 딱 좋은 날씨입니다! 🐕🌿"
+            imageEmoji="🐕🌿"
+            likes={92}
+            comments={7}
+          />
         </main>
       )}
     </div>
