@@ -10,7 +10,7 @@ const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { 
 const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false });
 
 // --- Types ---
-type View = 'pitch' | 'home' | 'detail' | 'explore' | 'community' | 'my';
+type View = 'pitch' | 'home' | 'detail' | 'explore' | 'exploreDetail' | 'community' | 'my';
 
 const activityData: Record<string, any> = {
   '러닝': {
@@ -182,11 +182,57 @@ const HomeView = ({ onDetail }: { onDetail: (name: string) => void }) => (
           </button>
         </div>
       </div>
+
+      {/* Environmental Dashboard */}
+      <h3 style={{ fontSize: '16px', fontWeight: 700, marginTop: '32px', marginBottom: '16px' }}>오늘의 환경 리포트</h3>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+        {[
+          { label: '미세먼지', value: '좋음 (12)', color: '#2ECC71', icon: '💨' },
+          { label: '자외선', value: '높음 (7)', color: '#FBC02D', icon: '☀️' },
+          { label: '바람', value: '2.4m/s (남)', color: '#3182F6', icon: '🚩' },
+          { label: '기온', value: '22.4°C', color: '#FF9800', icon: '🌡️' },
+        ].map((item, i) => (
+          <div key={i} className="card" style={{ padding: '16px', border: '1px solid #f2f4f6', boxShadow: 'none' }}>
+            <div className="flex justify-between items-start">
+              <span style={{ fontSize: '20px' }}>{item.icon}</span>
+              <span style={{ color: item.color, fontSize: '12px', fontWeight: 800 }}>●</span>
+            </div>
+            <div style={{ marginTop: '12px' }}>
+              <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', fontWeight: 600 }}>{item.label}</div>
+              <div style={{ fontSize: '15px', fontWeight: 700, marginTop: '2px' }}>{item.value}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Community Preview */}
+      <div className="flex justify-between items-end mt-32 mb-16">
+        <h3 style={{ fontSize: '16px', fontWeight: 700 }}>지금 이 시각 커뮤니티</h3>
+        <span style={{ fontSize: '12px', color: 'var(--text-tertiary)', fontWeight: 600 }}>더보기 →</span>
+      </div>
+      <div className="flex gap-3 overflow-x-auto pb-4" style={{ scrollbarWidth: 'none' }}>
+        {[
+          { user: '러너킴', title: '오늘 한강 바람 최고!', tag: '#러닝', img: '/assets/반포한강지구.png' },
+          { user: '골린이', title: '청담공원 산책로 정비됐네요', tag: '#산책', img: '/assets/청담공원.png' },
+          { user: '등산왕', title: '관악산 연주대 인증샷', tag: '#등산', img: '/assets/관악산.png' },
+        ].map((post, i) => (
+          <div key={i} className="card" style={{ minWidth: '220px', padding: 0, overflow: 'hidden', border: '1px solid #f2f4f6', boxShadow: 'none' }}>
+            <div style={{ height: '110px', width: '100%' }}>
+              <img src={post.img} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+            <div style={{ padding: '12px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: 700 }}>{post.tag}</div>
+              <div style={{ fontSize: '13px', fontWeight: 700, margin: '4px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{post.title}</div>
+              <div style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>{post.user}</div>
+            </div>
+          </div>
+        ))}
+      </div>
     </main>
   </div>
 );
 
-const ExploreView = () => (
+const ExploreView = ({ onSelectCategory }: { onSelectCategory: (name: string) => void }) => (
   <div className="flex-1 flex flex-col animate-slide-up bg-[#F2F4F6]">
     <header className="header white">
       <div style={{ fontWeight: 700, fontSize: '18px' }}>탐색</div>
@@ -194,10 +240,13 @@ const ExploreView = () => (
     </header>
     <main className="px-6 pb-24">
       
-      {/* Search Bar */}
-      <div className="mt-4 flex items-center bg-white" style={{ borderRadius: '12px', padding: '12px 16px', border: '1px solid #eef0f2' }}>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B95A1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" placeholder="어떤 활동을 찾으시나요?" style={{ border: 'none', outline: 'none', marginLeft: '12px', width: '100%', fontSize: '15px' }} />
+      {/* Naver-style Search Bar */}
+      <div className="mt-6">
+        <h2 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '12px' }}>어떤 활동을 찾으시나요?</h2>
+        <div className="flex items-center bg-white" style={{ borderRadius: '8px', padding: '10px 16px', border: '2px solid #00D082', boxShadow: '0 4px 12px rgba(0, 208, 130, 0.08)' }}>
+          <input type="text" placeholder="활동명, 장소를 검색하세요" style={{ border: 'none', outline: 'none', width: '100%', fontSize: '18px', fontWeight: 600, color: 'var(--text-primary)' }} />
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00D082" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer' }}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </div>
       </div>
 
       {/* Categories */}
@@ -211,7 +260,12 @@ const ExploreView = () => (
           { name: '반려견 산책', icon: '🐕' },
           { name: '캠핑/피크닉', icon: '⛺' }
         ].map((cat, i) => (
-          <div key={i} className="card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '0', boxShadow: 'none', border: '1px solid #eef0f2' }}>
+          <div 
+            key={i} 
+            className="card" 
+            onClick={() => onSelectCategory(cat.name)}
+            style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '0', boxShadow: 'none', border: '1px solid #eef0f2', cursor: 'pointer' }}
+          >
             <div style={{ fontSize: '24px' }}>{cat.icon}</div>
             <div style={{ fontWeight: 600, fontSize: '14px' }}>{cat.name}</div>
           </div>
@@ -625,11 +679,128 @@ const DetailView = ({ name, onBack }: { name: string, onBack: () => void }) => {
   );
 };
 
+const ExploreDetailView = ({ category, onBack }: { category: string, onBack: () => void }) => {
+  const [page, setPage] = useState(1);
+  const placesPerPage = 3;
+  
+  const categoryPlaces: Record<string, any[]> = {
+    '러닝/트랙': [
+      { name: '남산 둘레길', dist: '2.5km', score: 88, tag: '인기', img: '/assets/남산둘레길.png' },
+      { name: '반포 한강지구', dist: '3.1km', score: 85, tag: '보통', img: '/assets/반포한강지구.png' },
+      { name: '뚝섬 한강공원', dist: '5.4km', score: 83, tag: '추천', img: '/assets/뚝섬.png' },
+    ],
+    '골프/필드': [
+      { name: '인서울 골프장', dist: '7.8km', score: 75, tag: '보통', img: '/assets/인서울골프장.png' },
+      { name: '뉴서울 CC', dist: '15km', score: 82, tag: '인기', img: '/assets/뉴서울cc.png' },
+      { name: '남양주 CC', dist: '22km', score: 68, tag: '주의', img: '/assets/남양주cc.png' },
+    ],
+    '등산/트레킹': [
+      { name: '관악산', dist: '4.5km', score: 90, tag: '추천', img: '/assets/관악산.png' },
+      { name: '청계산', dist: '5.2km', score: 82, tag: '쾌적', img: '/assets/청계산.png' },
+      { name: '북한산', dist: '12km', score: 95, tag: '최적', img: '/assets/북한산.png' },
+    ],
+    '반려견 산책': [
+      { name: '청담공원', dist: '1.2km', score: 92, tag: '최적', img: '/assets/청담공원.png' },
+      { name: '양재 시민의 숲', dist: '4.5km', score: 88, tag: '인기', img: '/assets/양재시민의숲.png' },
+      { name: '보라매 공원', dist: '8.2km', score: 84, tag: '보통', img: '/assets/보라매공원.png' },
+    ],
+    '자전거/라이딩': [
+      { name: '여의도 자전거길', dist: '6.5km', score: 91, tag: '추천', img: '/assets/여의도자전거길.png' },
+      { name: '중랑천 자전거길', dist: '10.2km', score: 87, tag: '인기', img: '/assets/중랑천.png' },
+    ],
+    '캠핑/피크닉': [
+      { name: '난지 캠핑장', dist: '11km', score: 89, tag: '추천', img: '/assets/난지캠핑장.png' },
+      { name: '뚝섬 피크닉존', dist: '5.4km', score: 83, tag: '보통', img: '/assets/뚝섬.png' },
+    ]
+  };
+
+  const allPlaces = categoryPlaces[category] || categoryPlaces['러닝/트랙'];
+
+  const totalPages = Math.ceil(allPlaces.length / placesPerPage);
+  const currentPlaces = allPlaces.slice((page - 1) * placesPerPage, page * placesPerPage);
+
+  return (
+    <div className="flex-1 flex flex-col bg-[#F2F4F6] animate-slide-up">
+      <header className="header white sticky top-0 z-10">
+        <div onClick={onBack} style={{ cursor: 'pointer', fontSize: '20px' }}>←</div>
+        <div style={{ fontWeight: 700, fontSize: '18px' }}>{category}</div>
+        <div style={{ width: '24px' }}></div>
+      </header>
+      
+      <main className="px-6 py-10 flex flex-col gap-8 overflow-y-auto pb-32 items-center">
+        {currentPlaces.map((place, i) => (
+          <div key={i} className="card w-full max-w-[400px] overflow-hidden" style={{ padding: 0, border: 'none', boxShadow: '0 12px 30px rgba(0,0,0,0.08)', background: 'white', marginBottom: '8px' }}>
+             <div style={{ height: '180px', width: '100%', position: 'relative' }}>
+                <img src={place.img} alt={place.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(255,255,255,0.9)', padding: '6px 12px', borderRadius: '100px', fontSize: '12px', fontWeight: 800, color: 'var(--primary-eco)' }}>{place.tag}</div>
+             </div>
+             <div style={{ padding: '24px' }}>
+                <div className="flex justify-between items-start">
+                   <div>
+                      <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)' }}>{place.name}</h3>
+                      <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginTop: '4px' }}>내 위치에서 {place.dist}</p>
+                   </div>
+                   <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '20px', fontWeight: 800, color: place.score > 90 ? 'var(--oai-optimal)' : 'var(--primary-eco)' }}>{place.score}점</div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontWeight: 600 }}>OAI Score</div>
+                   </div>
+                </div>
+                <div className="flex gap-2 mt-8">
+                   <button 
+                    style={{ 
+                      flex: 1, 
+                      padding: '14px 0', 
+                      fontSize: '15px', 
+                      borderRadius: '16px', 
+                      background: 'var(--primary-eco)', 
+                      color: 'white', 
+                      border: 'none', 
+                      fontWeight: 700,
+                      boxShadow: '0 4px 15px rgba(0, 208, 130, 0.2)',
+                      cursor: 'pointer'
+                    }}
+                   >
+                    장소 상세보기
+                   </button>
+                   <button style={{ width: '52px', height: '52px', background: '#F2F4F6', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', cursor: 'pointer' }}>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4E5968" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                   </button>
+                </div>
+             </div>
+          </div>
+        ))}
+
+        {/* Pagination */}
+        <div className="flex gap-2 mt-8">
+           {[...Array(totalPages)].map((_, i) => (
+             <button 
+               key={i} 
+               onClick={() => { setPage(i + 1); document.querySelector('main')?.scrollTo(0,0); }}
+               style={{ 
+                 width: '36px', height: '36px', borderRadius: '10px', border: 'none',
+                 background: page === i + 1 ? 'var(--primary)' : 'white',
+                 color: page === i + 1 ? 'white' : 'var(--text-secondary)',
+                 fontWeight: 700,
+                 boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                 transition: 'all 0.2s',
+                 cursor: 'pointer'
+               }}
+             >
+               {i + 1}
+             </button>
+           ))}
+        </div>
+      </main>
+    </div>
+  );
+};
+
 // --- Main App ---
 
 export default function App() {
   const [view, setView] = useState<View>('pitch');
   const [selectedActivity, setSelectedActivity] = useState<string>('러닝');
+  const [selectedCategory, setSelectedCategory] = useState<string>('러닝/트랙');
   const [communityInitialTab, setCommunityInitialTab] = useState<'map' | 'feed'>('feed');
 
   const handleOpenMap = () => {
@@ -642,6 +813,11 @@ export default function App() {
     setView('detail');
   };
 
+  const handleSelectCategory = (name: string) => {
+    setSelectedCategory(name);
+    setView('exploreDetail');
+  };
+
   return (
     <div className="app-container">
       <div className="flex-1 flex flex-col overflow-hidden" style={{ paddingTop: '40px' }}>
@@ -649,7 +825,10 @@ export default function App() {
         {view === 'home' && (
           <HomeView onDetail={Object.assign(handleShowDetail, { onOpenMap: handleOpenMap })} />
         )}
-        {view === 'explore' && <ExploreView />}
+        {view === 'explore' && <ExploreView onSelectCategory={handleSelectCategory} />}
+        {view === 'exploreDetail' && (
+          <ExploreDetailView category={selectedCategory} onBack={() => setView('explore')} />
+        )}
         {view === 'community' && <CommunityView initialTab={communityInitialTab} />}
         {view === 'my' && <MyView />}
         {view === 'detail' && <DetailView name={selectedActivity} onBack={() => setView('home')} />}
