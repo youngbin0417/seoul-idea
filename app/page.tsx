@@ -12,6 +12,63 @@ const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ss
 // --- Types ---
 type View = 'pitch' | 'home' | 'detail' | 'explore' | 'community' | 'my';
 
+const activityData: Record<string, any> = {
+  '러닝': {
+    icon: '🏃',
+    score: 85,
+    status: '최적',
+    desc: '매우 좋음',
+    factors: [
+      { label: '기온', value: 30 },
+      { label: '풍속', value: 20 },
+      { label: '미세먼지', value: 10 },
+      { label: '자외선', value: 25 },
+      { label: '습도', value: 15 }
+    ],
+    tip: '💡 "오후 6시 이후 선선한 바람, 러닝 최적 시간대"',
+    places: [
+      { name: '남산 둘레길', score: 85, dist: '2.1km', note: '숲길이라 자외선 차단 우수' },
+      { name: '반포 한강공원', score: 72, dist: '3.5km', note: '강바람 다소 강함' }
+    ]
+  },
+  '골프': {
+    icon: '⛳',
+    score: 62,
+    status: '보통',
+    desc: '주의 요망',
+    factors: [
+      { label: '풍속', value: 50 },
+      { label: '기온', value: 10 },
+      { label: '미세먼지', value: 10 },
+      { label: '자외선', value: 20 },
+      { label: '습도', value: 10 }
+    ],
+    tip: '💡 "풍속 6m/s 이상, 평소보다 한 클럽 더 길게 잡으세요"',
+    places: [
+      { name: 'A CC', score: 65, dist: '12km', note: '남풍 영향 적은 골짜기 코스' },
+      { name: 'B 연습장', score: 58, dist: '2.3km', note: '실외 연습장 바람 주의' }
+    ]
+  },
+  '산책': {
+    icon: '🐕',
+    score: 91,
+    status: '최적',
+    desc: '매우 쾌적',
+    factors: [
+      { label: '풍속', value: 10 },
+      { label: '기온', value: 30 },
+      { label: '미세먼지', value: 10 },
+      { label: '자외선', value: 30 },
+      { label: '습도', value: 20 }
+    ],
+    tip: '💡 "전 구역 바람 잔잔, 반려견과 함께하기 최적"',
+    places: [
+      { name: '숲마을 공원', score: 91, dist: '0.8km', note: '그늘 많고 바람 없음' },
+      { name: '하늘길 산책로', score: 88, dist: '1.5km', note: '탁 트인 시야, 고도 적당' }
+    ]
+  }
+};
+
 // --- Components ---
 
 const Gauge = ({ value }: { value: number }) => {
@@ -57,7 +114,7 @@ const PitchView = ({ onStart }: { onStart: () => void }) => (
   </div>
 );
 
-const HomeView = ({ onDetail }: { onDetail: () => void }) => (
+const HomeView = ({ onDetail }: { onDetail: (name: string) => void }) => (
   <div className="flex-1 flex flex-col animate-slide-up">
     <header className="header">
       <div className="flex items-center gap-2" style={{ fontWeight: 700 }}>
@@ -71,22 +128,59 @@ const HomeView = ({ onDetail }: { onDetail: () => void }) => (
       
       <div className="flex gap-3 overflow-x-auto pb-4" style={{ scrollbarWidth: 'none' }}>
         {[
-          { name: '러닝', score: 85, status: '최적' },
-          { name: '골프', score: 62, status: '보통' },
-          { name: '산책', score: 91, status: '최적' },
+          { name: '러닝', score: 85, status: '최적', icon: '🏃' },
+          { name: '골프', score: 62, status: '보통', icon: '⛳' },
+          { name: '산책', score: 91, status: '최적', icon: '🐕' },
         ].map((item, i) => (
-          <div key={i} className="card" onClick={onDetail} style={{ minWidth: '130px', padding: '16px', textAlign: 'center', flexShrink: 0, cursor: 'pointer' }}>
-            <div style={{ fontSize: '24px', marginBottom: '8px' }}>{i === 1 ? '⛳' : i === 0 ? '🏃' : '🐕'}</div>
+          <div key={i} className="card" onClick={() => onDetail(item.name)} style={{ minWidth: '130px', padding: '16px', textAlign: 'center', flexShrink: 0, cursor: 'pointer' }}>
+            <div style={{ fontSize: '24px', marginBottom: '8px' }}>{item.icon}</div>
             <div style={{ fontWeight: 700 }}>{item.name}</div>
-            <div style={{ color: item.score > 80 ? 'var(--oai-optimal)' : 'var(--oai-moderate)', fontWeight: 800, fontSize: '18px' }}>{item.score}점</div>
+            <div style={{ color: item.score > 80 ? 'var(--oai-optimal)' : (item.score > 60 ? 'var(--oai-good)' : 'var(--oai-poor)'), fontWeight: 800, fontSize: '18px' }}>{item.score}점</div>
             <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{item.status}</div>
           </div>
         ))}
       </div>
 
-      <div className="card" style={{ height: '300px', padding: 0, position: 'relative', background: '#E5E8EB', overflow: 'hidden' }}>
-        <div style={{ padding: '20px', fontWeight: 700 }}>실시간 최적 장소 탐색</div>
-        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '40px', height: '40px', background: 'rgba(46, 204, 113, 0.3)', border: '2px solid #2ECC71', borderRadius: '50%' }}></div>
+      <div className="card" style={{ height: '240px', padding: 0, position: 'relative', overflow: 'hidden', border: 'none', background: 'white' }}>
+        <div 
+          style={{ 
+            position: 'absolute', 
+            inset: 0, 
+            background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+            opacity: 0.3
+          }}
+        />
+        
+        <div style={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+          <div style={{ width: '100px', height: '100px', background: 'white', borderRadius: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 25px rgba(0,0,0,0.05)', marginBottom: '16px' }}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ color: 'var(--text-primary)', fontWeight: 800, fontSize: '18px' }}>실시간 최적 장소 탐색</div>
+            <div style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '4px' }}>내 주변 최적의 활동 스팟 찾기</div>
+          </div>
+          
+          <button 
+            onClick={(e) => { e.stopPropagation(); (onDetail as any).onOpenMap(); }}
+            style={{ 
+              marginTop: '20px',
+              background: 'var(--primary)', 
+              color: 'white', 
+              padding: '10px 24px', 
+              borderRadius: '100px', 
+              fontWeight: 700, 
+              fontSize: '14px', 
+              boxShadow: '0 4px 12px rgba(49,130,246,0.3)',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            지도 열기
+          </button>
+        </div>
       </div>
     </main>
   </div>
@@ -185,8 +279,12 @@ const LeafletMap = () => {
   );
 };
 
-const CommunityView = () => {
-  const [tab, setTab] = useState<'map' | 'feed'>('map');
+const CommunityView = ({ initialTab = 'feed' }: { initialTab?: 'map' | 'feed' }) => {
+  const [tab, setTab] = useState<'map' | 'feed'>(initialTab);
+
+  useEffect(() => {
+    setTab(initialTab);
+  }, [initialTab]);
 
   return (
     <div className="flex-1 flex flex-col bg-[#F2F4F6] overflow-y-auto pb-24" style={{ position: 'relative' }}>
@@ -194,20 +292,6 @@ const CommunityView = () => {
       {/* Top Tab Bar (Large, floating style) */}
       <div className="pt-8 px-6 pb-4 flex justify-between items-center z-[1001] sticky top-0 bg-[#F2F4F6]">
         <div className="flex bg-[#E5E8EB] p-1.5 rounded-[18px] gap-1 flex-1 shadow-inner mr-3">
-          <div 
-            onClick={() => setTab('map')} 
-            className="flex-1 flex justify-center items-center gap-2"
-            style={{ 
-              padding: '12px 0', 
-              borderRadius: '14px', 
-              background: tab === 'map' ? 'white' : 'transparent',
-              boxShadow: tab === 'map' ? '0 4px 12px rgba(0,0,0,0.06)' : 'none',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-          >
-            <span style={{ fontSize: '16px', fontWeight: 800, color: tab === 'map' ? 'var(--text-primary)' : '#8B95A1' }}>지도 보기</span>
-          </div>
           <div 
             onClick={() => setTab('feed')} 
             className="flex-1 flex justify-center items-center gap-2"
@@ -221,6 +305,20 @@ const CommunityView = () => {
             }}
           >
             <span style={{ fontSize: '16px', fontWeight: 800, color: tab === 'feed' ? 'var(--text-primary)' : '#8B95A1' }}>피드 보기</span>
+          </div>
+          <div 
+            onClick={() => setTab('map')} 
+            className="flex-1 flex justify-center items-center gap-2"
+            style={{ 
+              padding: '12px 0', 
+              borderRadius: '14px', 
+              background: tab === 'map' ? 'white' : 'transparent',
+              boxShadow: tab === 'map' ? '0 4px 12px rgba(0,0,0,0.06)' : 'none',
+              cursor: 'pointer',
+              transition: 'all 0.2s'
+            }}
+          >
+            <span style={{ fontSize: '16px', fontWeight: 800, color: tab === 'map' ? 'var(--text-primary)' : '#8B95A1' }}>지도 보기</span>
           </div>
         </div>
         <div style={{ width: '48px', height: '48px', background: 'white', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(0,0,0,0.06)', color: 'var(--text-primary)', cursor: 'pointer' }}>
@@ -410,8 +508,9 @@ const MyView = () => (
   </div>
 );
 
-const DetailView = ({ onBack }: { onBack: () => void }) => {
+const DetailView = ({ name, onBack }: { name: string, onBack: () => void }) => {
   const [analyzing, setAnalyzing] = useState(true);
+  const data = activityData[name] || activityData['러닝'];
 
   useEffect(() => {
     const timer = setTimeout(() => setAnalyzing(false), 1000);
@@ -431,27 +530,29 @@ const DetailView = ({ onBack }: { onBack: () => void }) => {
     <div className="flex-1 flex flex-col animate-slide-up">
       <header className="header white">
         <div onClick={onBack} style={{ cursor: 'pointer', fontSize: '20px' }}>←</div>
-        <div style={{ fontWeight: 700 }}>골프 추천</div>
+        <div style={{ fontWeight: 700 }}>{name} 추천</div>
         <div style={{ fontSize: '20px' }}>⋮</div>
       </header>
 
       <main className="px-6 pb-24" style={{ background: 'white' }}>
         {/* OAI Dashboard Header */}
         <div className="oai-gauge-box mt-4">
-          <div style={{ fontSize: '32px' }}>⛳</div>
-          <div style={{ fontWeight: 700, margin: '8px 0' }}>오늘의 골프 적합도</div>
-          <div style={{ fontWeight: 800, fontSize: '20px', color: 'var(--oai-optimal)' }}>88점 / 매우 좋음</div>
-          <Gauge value={88} />
+          <div style={{ fontSize: '32px' }}>{data.icon}</div>
+          <div style={{ fontWeight: 700, margin: '8px 0' }}>오늘의 {name} 적합도</div>
+          <div style={{ fontWeight: 800, fontSize: '20px', color: data.score > 80 ? 'var(--oai-optimal)' : 'var(--oai-good)' }}>
+            {data.score}점 / {data.desc}
+          </div>
+          <Gauge value={data.score} />
         </div>
 
         {/* 24시간 OAI 그래프 */}
         <div className="card mt-4" style={{ boxShadow: 'none', border: '1px solid #eef0f2' }}>
           <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '12px' }}>24시간 OAI 예측</h3>
           <div className="flex items-end gap-2" style={{ height: '96px' }}>
-            {[88, 72, 45, 50, 60, 80, 85, 75].map((s, i) => (
+            {[data.score, data.score - 10, data.score - 30, data.score - 20, data.score - 10, data.score, data.score + 5, data.score - 5].map((s, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-1">
                 <div className="w-full relative overflow-hidden" style={{ background: '#f2f4f6', height: '80px', borderRadius: '4px' }}>
-                  <div className="absolute bottom-0 w-full" style={{ height: `${s}%`, background: s > 80 ? 'var(--oai-optimal)' : 'var(--primary)', transition: 'height 1s' }}></div>
+                  <div className="absolute bottom-0 w-full" style={{ height: `${Math.max(0, Math.min(100, s))}%`, background: s > 80 ? 'var(--oai-optimal)' : 'var(--primary)', transition: 'height 1s' }}></div>
                 </div>
                 <span style={{ fontSize: '10px', color: '#8b95a1' }}>{9 + i * 2}시</span>
               </div>
@@ -465,44 +566,38 @@ const DetailView = ({ onBack }: { onBack: () => void }) => {
         {/* 세부 환경요소 분석 */}
         <div className="card mt-4" style={{ boxShadow: 'none', border: '1px solid #eef0f2' }}>
           <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '16px' }}>세부 환경요소 분석</h3>
-          <FactorAnalysis label="풍속·풍향" value={40} />
-          <FactorAnalysis label="기온" value={20} />
-          <FactorAnalysis label="미세먼지" value={15} />
-          <FactorAnalysis label="자외선" value={15} />
-          <FactorAnalysis label="습도" value={10} />
+          {data.factors.map((f: any, idx: number) => (
+            <FactorAnalysis key={idx} label={f.label} value={f.value} />
+          ))}
           <div className="mt-4 p-3 rounded-xl" style={{ background: '#f8f9fa', fontSize: '13px', borderLeft: '4px solid var(--primary-eco)' }}>
-            💡 "오전 9~11시 바람 약함(2m/s), 스코어 최적 시간대"
+            {data.tip}
           </div>
         </div>
 
-        {/* 추천 장소 TOP 3 */}
-        <h3 className="mt-4" style={{ fontSize: '16px', fontWeight: 700, marginBottom: '12px' }}>추천 장소 TOP 3</h3>
+        {/* 추천 장소 TOP 2 */}
+        <h3 className="mt-4" style={{ fontSize: '16px', fontWeight: 700, marginBottom: '12px' }}>추천 장소 TOP 2</h3>
         <div className="card" style={{ boxShadow: 'none', border: '1px solid #eef0f2', padding: '16px' }}>
-          <div className="flex gap-3 items-center">
-            <div style={{ fontSize: '24px' }}>🥇</div>
-            <div className="flex-1">
-              <div className="flex justify-between">
-                <span style={{ fontWeight: 700 }}>D골프장</span>
-                <span style={{ color: 'var(--oai-optimal)', fontWeight: 800 }}>88점</span>
+          {data.places.map((p: any, idx: number) => (
+            <React.Fragment key={idx}>
+              <div className="flex gap-3 items-center">
+                <div style={{ fontSize: '24px' }}>{idx === 0 ? '🥇' : '🥈'}</div>
+                <div className="flex-1">
+                  <div className="flex justify-between">
+                    <span style={{ fontWeight: 700 }}>{p.name}</span>
+                    <span style={{ color: p.score > 80 ? 'var(--oai-optimal)' : 'var(--oai-good)', fontWeight: 800 }}>{p.score}점</span>
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{p.dist} | {p.note}</div>
+                  {idx === 0 && (
+                    <div className="flex gap-2 mt-2">
+                      <button style={{ padding: '4px 10px', fontSize: '12px', background: '#f2f4f6', border: 'none', borderRadius: '6px' }}>길찾기</button>
+                      <button style={{ padding: '4px 10px', fontSize: '12px', background: '#f2f4f6', border: 'none', borderRadius: '6px' }}>상세정보</button>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>2.3km | "바람 약함, 동풍 - 아웃코스 유리"</div>
-              <div className="flex gap-2 mt-2">
-                <button style={{ padding: '4px 10px', fontSize: '12px', background: '#f2f4f6', border: 'none', borderRadius: '6px' }}>길찾기</button>
-                <button style={{ padding: '4px 10px', fontSize: '12px', background: '#f2f4f6', border: 'none', borderRadius: '6px' }}>상세정보</button>
-              </div>
-            </div>
-          </div>
-          <hr style={{ margin: '16px 0', border: 'none', borderTop: '1px solid #f2f4f6' }} />
-          <div className="flex gap-3 items-center">
-            <div style={{ fontSize: '24px' }}>🥈</div>
-            <div className="flex-1">
-              <div className="flex justify-between">
-                <span style={{ fontWeight: 700 }}>E골프장</span>
-                <span style={{ color: 'var(--oai-good)', fontWeight: 800 }}>65점</span>
-              </div>
-              <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>5.1km | "풍속 6m/s, 남풍 주의"</div>
-            </div>
-          </div>
+              {idx === 0 && <hr style={{ margin: '16px 0', border: 'none', borderTop: '1px solid #f2f4f6' }} />}
+            </React.Fragment>
+          ))}
         </div>
 
         {/* 프로 팁 아코디언 */}
@@ -534,16 +629,30 @@ const DetailView = ({ onBack }: { onBack: () => void }) => {
 
 export default function App() {
   const [view, setView] = useState<View>('pitch');
+  const [selectedActivity, setSelectedActivity] = useState<string>('러닝');
+  const [communityInitialTab, setCommunityInitialTab] = useState<'map' | 'feed'>('feed');
+
+  const handleOpenMap = () => {
+    setCommunityInitialTab('map');
+    setView('community');
+  };
+
+  const handleShowDetail = (name: string) => {
+    setSelectedActivity(name);
+    setView('detail');
+  };
 
   return (
     <div className="app-container">
       <div className="flex-1 flex flex-col overflow-hidden" style={{ paddingTop: '40px' }}>
         {view === 'pitch' && <PitchView onStart={() => setView('home')} />}
-        {view === 'home' && <HomeView onDetail={() => setView('detail')} />}
+        {view === 'home' && (
+          <HomeView onDetail={Object.assign(handleShowDetail, { onOpenMap: handleOpenMap })} />
+        )}
         {view === 'explore' && <ExploreView />}
-        {view === 'community' && <CommunityView />}
+        {view === 'community' && <CommunityView initialTab={communityInitialTab} />}
         {view === 'my' && <MyView />}
-        {view === 'detail' && <DetailView onBack={() => setView('home')} />}
+        {view === 'detail' && <DetailView name={selectedActivity} onBack={() => setView('home')} />}
       </div>
 
       {view !== 'pitch' && (
@@ -556,7 +665,10 @@ export default function App() {
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
             <div style={{ fontSize: '10px', fontWeight: 600 }}>탐색</div>
           </div>
-          <div onClick={() => setView('community')} style={{ textAlign: 'center', opacity: view === 'community' ? 1 : 0.4, cursor: 'pointer', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+          <div 
+            onClick={() => { setCommunityInitialTab('feed'); setView('community'); }} 
+            style={{ textAlign: 'center', opacity: view === 'community' ? 1 : 0.4, cursor: 'pointer', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}
+          >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             <div style={{ fontSize: '10px', fontWeight: 600 }}>커뮤니티</div>
           </div>
