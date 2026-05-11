@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ECO - 실시간 야외활동 지능</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Pitch/Loading Screen (Toss Style) -->
+        <div id="screen-pitch" class="screen active" style="background: #FFFFFF; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px;">
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <img src="eco_logo_toss_style_1778498907125.png" style="width: 80px; height: 80px; margin-bottom: 24px;">
+                <h1 style="font-size: 28px; font-weight: 800; color: #191F28; margin-bottom: 12px;">ECO</h1>
+                <p style="font-size: 16px; color: #4E5968; line-height: 1.6;">
+                    날씨가 아니라,<br>
+                    활동의 최적을 찾습니다.
+                </p>
+            </div>
+            <div style="width: 100%; padding-bottom: 40px;">
+                <button class="btn-full" onclick="showScreen('home')">지금 시작하기</button>
+            </div>
+        </div>
+
+        <!-- Home Screen -->
+        <div id="screen-home" class="screen">
+            <header>
+                <div class="location-selector">
+                    <span>📍 서울시 강남구</span>
+                </div>
+                <button class="icon-btn">🔔</button>
+            </header>
+
+            <main>
+                <div class="section">
+                    <h2 class="section-title">오늘의 활동 지수</h2>
+                    <p class="section-subtitle">2026.05.11 (월) 기준</p>
+                    
+                    <div class="activity-scroll">
+                        <div class="activity-card active" onclick="showScreen('detail-golf')">
+                            <span class="activity-icon">⛳</span>
+                            <span class="activity-name">골프</span>
+                            <span class="score-badge" style="background: var(--oai-optimal);">85점</span>
+                        </div>
+                        <div class="activity-card" onclick="showScreen('detail-running')">
+                            <span class="activity-icon">🏃</span>
+                            <span class="activity-name">러닝</span>
+                            <span class="score-badge" style="background: var(--oai-good);">72점</span>
+                        </div>
+                        <div class="activity-card" onclick="showScreen('detail-walking')">
+                            <span class="activity-icon">🐕</span>
+                            <span class="activity-name">산책</span>
+                            <span class="score-badge" style="background: var(--oai-optimal);">91점</span>
+                        </div>
+                    </div>
+
+                    <div class="card" style="padding: 0; overflow: hidden;">
+                        <div class="map-container" style="margin-bottom: 0; height: 300px;">
+                            <!-- Map Elements -->
+                            <div style="position: absolute; top: 40%; left: 30%; width: 44px; height: 44px; background: rgba(46, 204, 113, 0.2); border: 3px solid #2ECC71; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(46,204,113,0.4);">
+                                <span style="font-size: 14px; font-weight: 800; color: #191F28;">85</span>
+                            </div>
+                            <div class="map-overlay-info">
+                                <div style="font-weight: 700; font-size: 15px;">내 주변 최적 장소 5곳</div>
+                                <div style="font-size: 13px; opacity: 0.8;">지금 골프 치기 가장 좋은 조건입니다</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Detail Screen (Golf) -->
+        <div id="screen-detail-golf" class="screen">
+            <header style="background: white;">
+                <button class="icon-btn" onclick="showScreen('home')">←</button>
+                <div style="font-weight: 700;">골프 지수 분석</div>
+                <button class="icon-btn">⋮</button>
+            </header>
+            
+            <main>
+                <div class="detail-header">
+                    <div class="large-score">88</div>
+                    <div class="score-label" style="color: var(--oai-optimal);">매우 좋음</div>
+                    <p style="color: var(--text-tertiary); font-size: 14px; margin-top: 4px;">풍속과 미세먼지가 최적 상태입니다</p>
+                </div>
+
+                <div class="section">
+                    <div class="card">
+                        <h3 style="font-size: 17px; font-weight: 700; margin-bottom: 16px;">시간대별 예측</h3>
+                        <div id="golf-prediction" style="height: 120px; display: flex; align-items: flex-end; gap: 8px;">
+                            <!-- Bars by JS -->
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 style="font-size: 17px; font-weight: 700; margin-bottom: 16px;">상세 환경 조건</h3>
+                        <div class="factor-grid">
+                            <div class="factor-item">
+                                <span class="factor-icon">🌡️</span>
+                                <div class="factor-info">
+                                    <span class="factor-name">기온</span>
+                                    <span class="factor-value">18℃</span>
+                                </div>
+                            </div>
+                            <div class="factor-item">
+                                <span class="factor-icon">💨</span>
+                                <div class="factor-info">
+                                    <span class="factor-name">풍속</span>
+                                    <span class="factor-value">2m/s</span>
+                                </div>
+                            </div>
+                            <div class="factor-item">
+                                <span class="factor-icon">☀️</span>
+                                <div class="factor-info">
+                                    <span class="factor-name">자외선</span>
+                                    <span class="factor-value">보통</span>
+                                </div>
+                            </div>
+                            <div class="factor-item">
+                                <span class="factor-icon">😷</span>
+                                <div class="factor-info">
+                                    <span class="factor-name">미세먼지</span>
+                                    <span class="factor-value">좋음</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="display: flex; gap: 16px; align-items: center;">
+                        <img src="golf_course_view_1778498648029.png" style="width: 80px; height: 80px; border-radius: 16px; object-fit: cover;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; font-size: 16px;">D골프클럽</div>
+                            <div style="font-size: 14px; color: var(--text-secondary);">2.3km | 현재 88점</div>
+                        </div>
+                        <div style="font-size: 20px; color: #ccc;">›</div>
+                    </div>
+
+                    <div style="padding-top: 12px; padding-bottom: 80px;">
+                        <button class="btn-full">이 장소로 길찾기</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Community Screen -->
+        <div id="screen-community" class="screen">
+            <header>
+                <div style="font-weight: 700; font-size: 18px;">실시간 제보</div>
+                <button class="icon-btn">✏️</button>
+            </header>
+            <main>
+                <div class="section">
+                    <div class="card">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: #eee; border-radius: 50%;"></div>
+                            <div>
+                                <div style="font-weight: 700; font-size: 15px;">러너킴</div>
+                                <div style="font-size: 12px; color: var(--text-tertiary);">2시간 전 | 서울숲</div>
+                            </div>
+                        </div>
+                        <p style="font-size: 15px; color: #4E5968;">"오늘 서울숲 조깅 코스 바람도 없고 완벽합니다. OAI 점수 믿고 나왔는데 역시 좋네요!"</p>
+                    </div>
+
+                    <div class="card">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: #eee; border-radius: 50%;"></div>
+                            <div>
+                                <div style="font-weight: 700; font-size: 15px;">골프매니아</div>
+                                <div style="font-size: 12px; color: var(--text-tertiary);">5시간 전 | D골프장</div>
+                            </div>
+                        </div>
+                        <p style="font-size: 15px; color: #4E5968;">"그린 상태 최고입니다. OAI 지수가 높아서 그런지 공이 정말 잘 나가네요."</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Bottom Nav -->
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item active" onclick="showScreen('home'); return false;">
+                <span class="nav-icon">🏠</span>
+                <span>홈</span>
+            </a>
+            <a href="#" class="nav-item" onclick="alert('탐색'); return false;">
+                <span class="nav-icon">🔍</span>
+                <span>탐색</span>
+            </a>
+            <a href="#" class="nav-item" onclick="showScreen('community'); return false;">
+                <span class="nav-icon">📍</span>
+                <span>커뮤니티</span>
+            </a>
+            <a href="#" class="nav-item" onclick="alert('마이'); return false;">
+                <span class="nav-icon">👤</span>
+                <span>마이</span>
+            </a>
+        </nav>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,527 @@
+'use client';
+
+import React, { useState, useEffect } from 'react';
+
+// --- Types ---
+type View = 'pitch' | 'home' | 'detail' | 'explore' | 'community' | 'my';
+
+// --- Components ---
+
+const Gauge = ({ value }: { value: number }) => {
+  const radius = 50;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (value / 100) * circumference;
+
+  return (
+    <div className="gauge-circle">
+      <svg className="gauge-svg" width="120" height="120">
+        <circle className="gauge-bg" cx="60" cy="60" r={radius} />
+        <circle 
+          className="gauge-fill" 
+          cx="60" cy="60" r={radius} 
+          style={{ strokeDasharray: circumference, strokeDashoffset: offset }}
+        />
+      </svg>
+      <div className="gauge-text">{value}%</div>
+    </div>
+  );
+};
+
+const FactorAnalysis = ({ label, value }: { label: string; value: number }) => (
+  <div className="flex items-center gap-3 mb-3">
+    <div style={{ minWidth: '70px', fontSize: '13px', fontWeight: 600 }}>{label}</div>
+    <div className="factor-bar-container">
+      <div className="factor-bar-fill" style={{ width: `${value}%` }} />
+    </div>
+    <div style={{ minWidth: '36px', fontSize: '12px', textAlign: 'right', color: 'var(--text-secondary)' }}>{value}%</div>
+  </div>
+);
+
+// --- Views ---
+
+const PitchView = ({ onStart }: { onStart: () => void }) => (
+  <div className="flex-1 flex flex-col items-center justify-center text-center p-6 animate-fade-in" style={{ background: '#FFFFFF' }}>
+    <div className="flex-1 flex flex-col justify-center items-center">
+      <div style={{ fontSize: '48px', fontWeight: 800, color: '#00D082', marginBottom: '16px' }}>ECO</div>
+      <h1 style={{ fontSize: '28px', fontWeight: 800, marginBottom: '12px', wordBreak: 'keep-all', lineHeight: 1.3 }}>날씨가 아니라,<br />활동의 최적을 찾습니다.</h1>
+      <p style={{ color: '#4E5968' }}>Outdoor Activity Intelligence</p>
+    </div>
+    <button className="btn-primary" onClick={onStart}>지금 시작하기</button>
+  </div>
+);
+
+const HomeView = ({ onDetail }: { onDetail: () => void }) => (
+  <div className="flex-1 flex flex-col animate-slide-up">
+    <header className="header">
+      <div className="flex items-center gap-2" style={{ fontWeight: 700 }}>
+        📍 서울시 강남구 ▼
+      </div>
+      <div style={{ fontSize: '20px' }}>🔔</div>
+    </header>
+    <main className="px-6 pb-24">
+      <h2 className="section-title">오늘의 야외활동</h2>
+      <p className="section-subtitle">2026.05.11 (월) 18:42</p>
+      
+      <div className="flex gap-3 overflow-x-auto pb-4" style={{ scrollbarWidth: 'none' }}>
+        {[
+          { name: '러닝', score: 85, status: '최적' },
+          { name: '골프', score: 62, status: '보통' },
+          { name: '산책', score: 91, status: '최적' },
+        ].map((item, i) => (
+          <div key={i} className="card" onClick={onDetail} style={{ minWidth: '130px', padding: '16px', textAlign: 'center', flexShrink: 0, cursor: 'pointer' }}>
+            <div style={{ fontSize: '24px', marginBottom: '8px' }}>{i === 1 ? '⛳' : i === 0 ? '🏃' : '🐕'}</div>
+            <div style={{ fontWeight: 700 }}>{item.name}</div>
+            <div style={{ color: item.score > 80 ? 'var(--oai-optimal)' : 'var(--oai-moderate)', fontWeight: 800, fontSize: '18px' }}>{item.score}점</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{item.status}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="card" style={{ height: '300px', padding: 0, position: 'relative', background: '#E5E8EB', overflow: 'hidden' }}>
+        <div style={{ padding: '20px', fontWeight: 700 }}>실시간 최적 장소 탐색</div>
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '40px', height: '40px', background: 'rgba(46, 204, 113, 0.3)', border: '2px solid #2ECC71', borderRadius: '50%' }}></div>
+      </div>
+    </main>
+  </div>
+);
+
+const ExploreView = () => (
+  <div className="flex-1 flex flex-col animate-slide-up bg-[#F2F4F6]">
+    <header className="header white">
+      <div style={{ fontWeight: 700, fontSize: '18px' }}>탐색</div>
+      <div style={{ fontSize: '20px' }}>🔔</div>
+    </header>
+    <main className="px-6 pb-24">
+      
+      {/* Search Bar */}
+      <div className="mt-4 flex items-center bg-white" style={{ borderRadius: '12px', padding: '12px 16px', border: '1px solid #eef0f2' }}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B95A1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" placeholder="어떤 활동을 찾으시나요?" style={{ border: 'none', outline: 'none', marginLeft: '12px', width: '100%', fontSize: '15px' }} />
+      </div>
+
+      {/* Categories */}
+      <h3 style={{ fontSize: '16px', fontWeight: 700, marginTop: '24px', marginBottom: '12px' }}>카테고리</h3>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+        {[
+          { name: '러닝/트랙', icon: '🏃' },
+          { name: '골프/필드', icon: '⛳' },
+          { name: '등산/트레킹', icon: '⛰️' },
+          { name: '자전거/라이딩', icon: '🚴' },
+          { name: '반려견 산책', icon: '🐕' },
+          { name: '캠핑/피크닉', icon: '⛺' }
+        ].map((cat, i) => (
+          <div key={i} className="card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '0', boxShadow: 'none', border: '1px solid #eef0f2' }}>
+            <div style={{ fontSize: '24px' }}>{cat.icon}</div>
+            <div style={{ fontWeight: 600, fontSize: '14px' }}>{cat.name}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Trending */}
+      <h3 style={{ fontSize: '16px', fontWeight: 700, marginTop: '24px', marginBottom: '12px' }}>지금 뜨는 장소</h3>
+      <div className="card" style={{ padding: '16px', boxShadow: 'none', border: '1px solid #eef0f2' }}>
+        <div className="flex gap-3 items-center">
+          <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--primary)' }}>1</div>
+          <div className="flex-1">
+            <div style={{ fontWeight: 700, fontSize: '15px' }}>남산 둘레길</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>러닝하기 좋은 선선한 날씨</div>
+          </div>
+          <div style={{ color: 'var(--oai-optimal)', fontWeight: 800 }}>92점</div>
+        </div>
+        <hr style={{ margin: '12px 0', border: 'none', borderTop: '1px solid #f2f4f6' }} />
+        <div className="flex gap-3 items-center">
+          <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-tertiary)' }}>2</div>
+          <div className="flex-1">
+            <div style={{ fontWeight: 700, fontSize: '15px' }}>한강공원 잠원지구</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>바람 잦아들어 피크닉 추천</div>
+          </div>
+          <div style={{ color: 'var(--oai-optimal)', fontWeight: 800 }}>88점</div>
+        </div>
+      </div>
+    </main>
+  </div>
+);
+
+const CommunityView = () => {
+  const [tab, setTab] = useState<'map' | 'feed'>('map');
+
+  return (
+    <div className="flex-1 flex flex-col bg-[#F2F4F6]" style={{ height: '100vh', paddingBottom: '72px' }}>
+      
+      {/* Top Header / Tab Switcher (Instagram style toggle) */}
+      <div className="bg-white px-4 py-2 flex justify-between items-center sticky top-0 z-20" style={{ borderBottom: '1px solid #f2f4f6' }}>
+        <div className="flex gap-4" style={{ paddingLeft: '8px' }}>
+          <div onClick={() => setTab('map')} style={{ fontSize: '18px', fontWeight: tab === 'map' ? 800 : 600, color: tab === 'map' ? '#191F28' : '#8B95A1', cursor: 'pointer', transition: 'color 0.2s' }}>지도보기</div>
+          <div onClick={() => setTab('feed')} style={{ fontSize: '18px', fontWeight: tab === 'feed' ? 800 : 600, color: tab === 'feed' ? '#191F28' : '#8B95A1', cursor: 'pointer', transition: 'color 0.2s' }}>피드보기</div>
+        </div>
+        <div className="flex gap-4" style={{ color: '#191F28', cursor: 'pointer' }}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        </div>
+      </div>
+
+      {tab === 'map' ? (
+        // --- MAP VIEW (Instagram Map Style) ---
+        <main 
+          className="flex-1 relative bg-[#E5E8EB] overflow-hidden animate-fade-in"
+          style={{ 
+            backgroundImage: 'url("https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/OpenStreetMap_-_Map_of_London.png/800px-OpenStreetMap_-_Map_of_London.png")',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        >
+          {/* Map overlay to soften the image slightly */}
+          <div className="absolute inset-0 bg-white/30 pointer-events-none"></div>
+          {/* Floating Search/Filter Overlay */}
+          <div className="absolute top-4 left-4 right-4 z-10 flex gap-2 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
+             <div className="bg-white flex items-center gap-2 px-4 py-2 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex-shrink-0" style={{ fontWeight: 600, fontSize: '14px', cursor: 'pointer' }}>
+               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+               현재 지역 검색
+             </div>
+             {['후기', '제보', '모임'].map(chip => (
+               <div key={chip} className="bg-white px-4 py-2 rounded-full shadow-[0_2px_8px_rgba(0,0,0,0.08)] flex-shrink-0" style={{ fontWeight: 600, fontSize: '14px', color: '#4E5968', cursor: 'pointer' }}>{chip}</div>
+             ))}
+          </div>
+
+          {/* Instagram-style Map Pins (Square with image inside and pointer) */}
+          <div className="absolute top-[30%] left-[20%] animate-slide-up" style={{ animationDelay: '0.1s' }}>
+            <div style={{ width: '60px', height: '60px', background: 'white', padding: '4px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', position: 'relative' }}>
+              <div style={{ width: '100%', height: '100%', backgroundColor: '#F2F4F6', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🏃</div>
+              <div style={{ position: 'absolute', bottom: '-8px', left: '50%', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '8px solid white' }}></div>
+            </div>
+          </div>
+          
+          <div className="absolute top-[50%] right-[20%] animate-slide-up" style={{ animationDelay: '0.2s' }}>
+            <div style={{ width: '60px', height: '60px', background: 'white', padding: '4px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', position: 'relative' }}>
+              <div style={{ width: '100%', height: '100%', backgroundColor: '#F2F4F6', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>⛳</div>
+              <div style={{ position: 'absolute', bottom: '-8px', left: '50%', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '8px solid white' }}></div>
+            </div>
+          </div>
+
+          <div className="absolute bottom-[20%] left-[40%] animate-slide-up" style={{ animationDelay: '0.3s' }}>
+             {/* Selected Pin Style */}
+             <div style={{ width: '70px', height: '70px', background: 'var(--primary)', padding: '4px', borderRadius: '8px', boxShadow: '0 4px 16px rgba(49,130,246,0.4)', position: 'relative', zIndex: 5 }}>
+              <div style={{ width: '100%', height: '100%', backgroundColor: '#fff', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px' }}>🏞️</div>
+              <div style={{ position: 'absolute', bottom: '-8px', left: '50%', transform: 'translateX(-50%)', width: 0, height: 0, borderLeft: '8px solid transparent', borderRight: '8px solid transparent', borderTop: '8px solid var(--primary)' }}></div>
+            </div>
+          </div>
+
+          {/* Location / View List Button overlay at bottom center */}
+          <div className="absolute bottom-6 w-full flex justify-center z-10 pointer-events-none">
+             <div className="pointer-events-auto bg-[#191F28] text-white px-5 py-3 rounded-[100px] flex gap-2 items-center shadow-[0_8px_16px_rgba(0,0,0,0.2)]" style={{ fontWeight: 700, fontSize: '14px', cursor: 'pointer' }}>
+               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+               이 지역 게시물 보기
+             </div>
+          </div>
+        </main>
+      ) : (
+        // --- FEED VIEW (Instagram Main Feed Style) ---
+        <main className="flex-1 bg-white overflow-y-auto animate-fade-in pb-12" style={{ scrollbarWidth: 'none' }}>
+          {/* Post 1 */}
+          <div className="mb-4">
+            {/* Post Header */}
+            <div className="flex items-center justify-between px-4 py-3">
+              <div className="flex items-center gap-3">
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#F2F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>👤</div>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    에코러너
+                    <span style={{ fontSize: '12px', color: '#8B95A1', fontWeight: 500 }}>• 2시간 전</span>
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: 600 }}>📍 남산 둘레길 (러닝)</div>
+                </div>
+              </div>
+              <div style={{ fontWeight: 700, fontSize: '18px', color: '#8B95A1', cursor: 'pointer' }}>⋮</div>
+            </div>
+            
+            {/* Post Image */}
+            <div style={{ width: '100%', aspectRatio: '1/1', background: '#F2F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '64px' }}>
+              🌳🏃
+            </div>
+
+            {/* Post Actions */}
+            <div className="flex items-center justify-between px-4 py-3">
+              <div className="flex gap-4 text-[#191F28]">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer' }}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer' }}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer' }}><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+              </div>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer' }}><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </div>
+
+            {/* Likes & Caption */}
+            <div className="px-4">
+              <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '4px' }}>좋아요 124개</div>
+              <div style={{ fontSize: '14px', lineHeight: 1.5 }}>
+                <span style={{ fontWeight: 700, marginRight: '6px' }}>에코러너</span>
+                오늘 남산 러닝 코스 진짜 최고네요! 바람도 적당하고 OAI 점수 92점 찍길래 바로 나왔습니다 🏃‍♂️💨
+              </div>
+              <div style={{ fontSize: '13px', color: '#8B95A1', marginTop: '6px', cursor: 'pointer' }}>댓글 12개 모두 보기</div>
+            </div>
+          </div>
+
+          <div style={{ width: '100%', height: '1px', background: '#f2f4f6', margin: '16px 0' }} />
+
+          {/* Post 2 */}
+          <div className="mb-4">
+            <div className="flex items-center justify-between px-4 py-3">
+              <div className="flex items-center gap-3">
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#F2F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>👤</div>
+                <div>
+                  <div style={{ fontSize: '14px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    골프초보
+                    <span style={{ fontSize: '12px', color: '#8B95A1', fontWeight: 500 }}>• 5시간 전</span>
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: 600 }}>📍 D골프장</div>
+                </div>
+              </div>
+              <div style={{ fontWeight: 700, fontSize: '18px', color: '#8B95A1', cursor: 'pointer' }}>⋮</div>
+            </div>
+            
+            <div style={{ width: '100%', aspectRatio: '1/1', background: '#F2F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '64px' }}>
+              ⛳☀️
+            </div>
+
+            <div className="flex items-center justify-between px-4 py-3">
+              <div className="flex gap-4 text-[#191F28]">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer' }}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer' }}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer' }}><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+              </div>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ cursor: 'pointer' }}><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            </div>
+
+            <div className="px-4">
+              <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '4px' }}>좋아요 58개</div>
+              <div style={{ fontSize: '14px', lineHeight: 1.5 }}>
+                <span style={{ fontWeight: 700, marginRight: '6px' }}>골프초보</span>
+                바람이 좀 불지만 칠만합니다. 14번홀 주의하세요!
+              </div>
+            </div>
+          </div>
+        </main>
+      )}
+    </div>
+  );
+};
+
+const MyView = () => (
+  <div className="flex-1 flex flex-col animate-slide-up bg-[#F2F4F6]">
+    <header className="header white">
+      <div style={{ fontWeight: 700, fontSize: '18px' }}>마이</div>
+      <div style={{ fontSize: '20px' }}>⚙️</div>
+    </header>
+    <main className="px-6 pb-24">
+      
+      {/* Profile */}
+      <div className="card mt-4 flex items-center gap-4" style={{ padding: '20px' }}>
+        <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: '#F2F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8B95A1' }}>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div className="flex-1">
+          <div style={{ fontWeight: 800, fontSize: '18px', color: 'var(--text-primary)' }}>에코유저님</div>
+          <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>주로 러닝과 골프를 즐겨요</div>
+        </div>
+        <button style={{ padding: '6px 12px', background: '#F2F4F6', color: 'var(--text-secondary)', borderRadius: '8px', fontSize: '12px', fontWeight: 600, border: 'none' }}>편집</button>
+      </div>
+
+      {/* Stats */}
+      <div className="flex gap-3 mb-3">
+        <div className="card flex-1" style={{ padding: '20px', marginBottom: 0 }}>
+          <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>이번 달 활동</div>
+          <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--primary)', marginTop: '4px' }}>12회</div>
+        </div>
+        <div className="card flex-1" style={{ padding: '20px', marginBottom: 0 }}>
+          <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>평균 OAI</div>
+          <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--oai-optimal)', marginTop: '4px' }}>76점</div>
+        </div>
+      </div>
+
+      {/* Settings List */}
+      <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-tertiary)', marginTop: '24px', marginBottom: '8px', paddingLeft: '8px' }}>설정</h3>
+      <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
+        <div className="flex justify-between items-center" style={{ padding: '18px 20px', borderBottom: '1px solid #f2f4f6' }}>
+          <span style={{ fontSize: '15px', fontWeight: 600 }}>선호 활동 관리</span>
+          <span style={{ color: '#8B95A1', fontSize: '20px' }}>›</span>
+        </div>
+        <div className="flex justify-between items-center" style={{ padding: '18px 20px', borderBottom: '1px solid #f2f4f6' }}>
+          <span style={{ fontSize: '15px', fontWeight: 600 }}>맞춤 환경 필터 (알레르기 등)</span>
+          <span style={{ color: '#8B95A1', fontSize: '20px' }}>›</span>
+        </div>
+        <div className="flex justify-between items-center" style={{ padding: '18px 20px' }}>
+          <span style={{ fontSize: '15px', fontWeight: 600 }}>알림 설정</span>
+          <span style={{ color: '#8B95A1', fontSize: '20px' }}>›</span>
+        </div>
+      </div>
+
+      <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-tertiary)', marginTop: '24px', marginBottom: '8px', paddingLeft: '8px' }}>기타</h3>
+      <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
+        <div className="flex justify-between items-center" style={{ padding: '18px 20px', borderBottom: '1px solid #f2f4f6' }}>
+          <span style={{ fontSize: '15px', fontWeight: 600 }}>데이터 소스 안내</span>
+          <span style={{ color: '#8B95A1', fontSize: '20px' }}>›</span>
+        </div>
+        <div className="flex justify-between items-center" style={{ padding: '18px 20px' }}>
+          <span style={{ fontSize: '15px', fontWeight: 600 }}>앱 정보</span>
+          <span style={{ color: '#8B95A1', fontSize: '14px', fontWeight: 600 }}>v1.0.0</span>
+        </div>
+      </div>
+    </main>
+  </div>
+);
+
+const DetailView = ({ onBack }: { onBack: () => void }) => {
+  const [analyzing, setAnalyzing] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setAnalyzing(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (analyzing) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center animate-fade-in" style={{ background: 'white' }}>
+        <div className="animate-spin" style={{ width: '40px', height: '40px', border: '4px solid #f3f3f3', borderTop: '4px solid var(--primary)', borderRadius: '50%' }}></div>
+        <div className="mt-4" style={{ fontWeight: 'bold' }}>OAI 분석 중...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex-1 flex flex-col animate-slide-up">
+      <header className="header white">
+        <div onClick={onBack} style={{ cursor: 'pointer', fontSize: '20px' }}>←</div>
+        <div style={{ fontWeight: 700 }}>골프 추천</div>
+        <div style={{ fontSize: '20px' }}>⋮</div>
+      </header>
+
+      <main className="px-6 pb-24" style={{ background: 'white' }}>
+        {/* OAI Dashboard Header */}
+        <div className="oai-gauge-box mt-4">
+          <div style={{ fontSize: '32px' }}>⛳</div>
+          <div style={{ fontWeight: 700, margin: '8px 0' }}>오늘의 골프 적합도</div>
+          <div style={{ fontWeight: 800, fontSize: '20px', color: 'var(--oai-optimal)' }}>88점 / 매우 좋음</div>
+          <Gauge value={88} />
+        </div>
+
+        {/* 24시간 OAI 그래프 */}
+        <div className="card mt-4" style={{ boxShadow: 'none', border: '1px solid #eef0f2' }}>
+          <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '12px' }}>24시간 OAI 예측</h3>
+          <div className="flex items-end gap-2" style={{ height: '96px' }}>
+            {[88, 72, 45, 50, 60, 80, 85, 75].map((s, i) => (
+              <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                <div className="w-full relative overflow-hidden" style={{ background: '#f2f4f6', height: '80px', borderRadius: '4px' }}>
+                  <div className="absolute bottom-0 w-full" style={{ height: `${s}%`, background: s > 80 ? 'var(--oai-optimal)' : 'var(--primary)', transition: 'height 1s' }}></div>
+                </div>
+                <span style={{ fontSize: '10px', color: '#8b95a1' }}>{9 + i * 2}시</span>
+              </div>
+            ))}
+          </div>
+          <div style={{ height: '4px', background: '#ddd', borderRadius: '2px', marginTop: '16px', position: 'relative' }}>
+            <div style={{ position: 'absolute', top: '-6px', left: '10%', width: '16px', height: '16px', background: 'white', border: '2px solid var(--primary)', borderRadius: '50%' }}></div>
+          </div>
+        </div>
+
+        {/* 세부 환경요소 분석 */}
+        <div className="card mt-4" style={{ boxShadow: 'none', border: '1px solid #eef0f2' }}>
+          <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '16px' }}>세부 환경요소 분석</h3>
+          <FactorAnalysis label="풍속·풍향" value={40} />
+          <FactorAnalysis label="기온" value={20} />
+          <FactorAnalysis label="미세먼지" value={15} />
+          <FactorAnalysis label="자외선" value={15} />
+          <FactorAnalysis label="습도" value={10} />
+          <div className="mt-4 p-3 rounded-xl" style={{ background: '#f8f9fa', fontSize: '13px', borderLeft: '4px solid var(--primary-eco)' }}>
+            💡 "오전 9~11시 바람 약함(2m/s), 스코어 최적 시간대"
+          </div>
+        </div>
+
+        {/* 추천 장소 TOP 3 */}
+        <h3 className="mt-4" style={{ fontSize: '16px', fontWeight: 700, marginBottom: '12px' }}>추천 장소 TOP 3</h3>
+        <div className="card" style={{ boxShadow: 'none', border: '1px solid #eef0f2', padding: '16px' }}>
+          <div className="flex gap-3 items-center">
+            <div style={{ fontSize: '24px' }}>🥇</div>
+            <div className="flex-1">
+              <div className="flex justify-between">
+                <span style={{ fontWeight: 700 }}>D골프장</span>
+                <span style={{ color: 'var(--oai-optimal)', fontWeight: 800 }}>88점</span>
+              </div>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>2.3km | "바람 약함, 동풍 - 아웃코스 유리"</div>
+              <div className="flex gap-2 mt-2">
+                <button style={{ padding: '4px 10px', fontSize: '12px', background: '#f2f4f6', border: 'none', borderRadius: '6px' }}>길찾기</button>
+                <button style={{ padding: '4px 10px', fontSize: '12px', background: '#f2f4f6', border: 'none', borderRadius: '6px' }}>상세정보</button>
+              </div>
+            </div>
+          </div>
+          <hr style={{ margin: '16px 0', border: 'none', borderTop: '1px solid #f2f4f6' }} />
+          <div className="flex gap-3 items-center">
+            <div style={{ fontSize: '24px' }}>🥈</div>
+            <div className="flex-1">
+              <div className="flex justify-between">
+                <span style={{ fontWeight: 700 }}>E골프장</span>
+                <span style={{ color: 'var(--oai-good)', fontWeight: 800 }}>65점</span>
+              </div>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>5.1km | "풍속 6m/s, 남풍 주의"</div>
+            </div>
+          </div>
+        </div>
+
+        {/* 프로 팁 아코디언 */}
+        <div className="card mt-4" style={{ boxShadow: 'none', border: '1px solid #eef0f2', padding: '16px' }}>
+          <div className="flex justify-between items-center">
+            <span style={{ fontSize: '14px', fontWeight: 600 }}>▼ 오늘 풍향 고려 클럽 선택 팁</span>
+          </div>
+          <hr style={{ margin: '12px 0', border: 'none', borderTop: '1px solid #f2f4f6' }} />
+          <div className="flex justify-between items-center">
+            <span style={{ fontSize: '14px', fontWeight: 600 }}>▼ 14번 홀은 항상 좌측 바람 주의</span>
+          </div>
+        </div>
+
+        {/* 체크리스트 */}
+        <div className="card mt-4" style={{ background: '#f0f7f4', border: 'none' }}>
+          <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '12px' }}>체크리스트</h3>
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2 items-center"><input type="checkbox" defaultChecked /> <span style={{ fontSize: '14px' }}>자외선 차단제 (SPF50+)</span></div>
+            <div className="flex gap-2 items-center"><input type="checkbox" /> <span style={{ fontSize: '14px' }}>물 500ml 이상</span></div>
+            <div className="flex gap-2 items-center"><input type="checkbox" /> <span style={{ fontSize: '14px' }}>바람 방향 체크</span></div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+// --- Main App ---
+
+export default function App() {
+  const [view, setView] = useState<View>('pitch');
+
+  return (
+    <div className="app-container">
+      {view === 'pitch' && <PitchView onStart={() => setView('home')} />}
+      {view === 'home' && <HomeView onDetail={() => setView('detail')} />}
+      {view === 'explore' && <ExploreView />}
+      {view === 'community' && <CommunityView />}
+      {view === 'my' && <MyView />}
+      {view === 'detail' && <DetailView onBack={() => setView('home')} />}
+
+      {view !== 'pitch' && (
+        <nav className="bottom-nav">
+          <div onClick={() => setView('home')} style={{ textAlign: 'center', opacity: view === 'home' || view === 'detail' ? 1 : 0.4, cursor: 'pointer', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <div style={{ fontSize: '10px', fontWeight: 600 }}>홈</div>
+          </div>
+          <div onClick={() => setView('explore')} style={{ textAlign: 'center', opacity: view === 'explore' ? 1 : 0.4, cursor: 'pointer', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <div style={{ fontSize: '10px', fontWeight: 600 }}>탐색</div>
+          </div>
+          <div onClick={() => setView('community')} style={{ textAlign: 'center', opacity: view === 'community' ? 1 : 0.4, cursor: 'pointer', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <div style={{ fontSize: '10px', fontWeight: 600 }}>커뮤니티</div>
+          </div>
+          <div onClick={() => setView('my')} style={{ textAlign: 'center', opacity: view === 'my' ? 1 : 0.4, cursor: 'pointer', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <div style={{ fontSize: '10px', fontWeight: 600 }}>마이</div>
+          </div>
+        </nav>
+      )}
+    </div>
+  );
+}
