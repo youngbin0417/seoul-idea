@@ -114,8 +114,7 @@ body {
 }
 
 .header.white {
-    background: white;
-    border-bottom: 1px solid #f2f4f6;
+    background: var(--bg-color);
 }
 
 /* Card */

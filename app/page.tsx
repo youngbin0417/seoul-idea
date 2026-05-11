@@ -817,7 +817,7 @@ const DetailView = ({ name, onBack }: { name: string, onBack: () => void }) => {
 
   if (analyzing) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center animate-fade-in" style={{ background: 'white' }}>
+      <div className="flex-1 flex flex-col items-center justify-center animate-fade-in" style={{ background: 'var(--bg-color)' }}>
         <div className="animate-spin" style={{ width: '40px', height: '40px', border: '4px solid #f3f3f3', borderTop: '4px solid var(--primary)', borderRadius: '50%' }}></div>
         <div className="mt-4" style={{ fontWeight: 'bold' }}>OAI 분석 중...</div>
       </div>
@@ -832,7 +832,7 @@ const DetailView = ({ name, onBack }: { name: string, onBack: () => void }) => {
         <div style={{ fontSize: '20px' }}>⋮</div>
       </header>
 
-      <main className="px-6 pb-24" style={{ background: 'white' }}>
+      <main className="px-6 pb-24">
         {/* OAI Dashboard Header */}
         <div className="oai-gauge-box mt-4">
           <div style={{ fontSize: '32px' }}>{data.icon}</div>
